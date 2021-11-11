@@ -18,8 +18,8 @@ class ShopUser(AbstractUser):
 
 
 class ShopUserProfile(models.Model):
-    MALE = 'M'
-    FEMALE = 'W'
+    MALE = "M"
+    FEMALE = "W"
 
     GENDER_CHOICES = (
         (MALE, 'М'),

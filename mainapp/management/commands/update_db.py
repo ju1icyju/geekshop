@@ -7,5 +7,5 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         users = ShopUser.objects.all()
         for user in users:
-            user_profile = ShopUserProfile.objects.create(user=user)
-            user_profile.save()
+            users_profile = ShopUserProfile.objects.create(user=user)
+            users_profile.save()

@@ -1,5 +1,4 @@
-
-<div>
+    <div>
     {% for item in basket %}
         <tr>
             <th scope="row">{{ forloop.counter }}</th>
@@ -12,7 +11,7 @@
         </tr>
     {% endfor %}
 
-</div>
+    </div>
 {% if basket %}
     <td colspan="2" class="basket_summary">
         В корзине {{ basket.0.total_quantity }} товаров общей стоимостью
