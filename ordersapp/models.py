@@ -12,14 +12,15 @@ class Order(models.Model):
     READY = 'RDY'
     CANCEL = 'CNC'
 
-    ORDER_STATUS_CHOICES = (
+    ORDER_STATUS_CHOIСES = (
         (FORMING, 'формируется'),
         (SENT_TO_PROCEED, 'отправлен в обработку'),
-        (PROCEEDED, 'обрабатывается'),
         (PAID, 'оплачен'),
-        (READY, 'готов к выдаче'),
+        (PROCEEDED, 'обрабатывается'),
+        (READY, 'готво к выдаче'),
         (CANCEL, 'отменен'),
     )
+    # или пользователя берем через get_user_model()
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -27,9 +28,9 @@ class Order(models.Model):
 
     created = models.DateTimeField(verbose_name='создан', auto_now_add=True)
     updated = models.DateTimeField(verbose_name='обновлен', auto_now=True)
-    status = models.CharField(verbose_name='статус', max_length=3, choices=ORDER_STATUS_CHOICES, default=FORMING)
+    status = models.CharField(verbose_name='статус', max_length=3, choices=ORDER_STATUS_CHOIСES, default=FORMING)
 
-    is_active = models.BooleanField(verbose_name='активен', default=True)
+    is_active = models.BooleanField(verbose_name='аткивен', default=True)
 
     class Meta:
         ordering = ('-created',)
@@ -60,7 +61,18 @@ class Order(models.Model):
         self.save()
 
 
+class OrderItemQuerySet(models.QuerySet):
+
+    def delete(self):
+        for object in self:
+            object.product.quantity += object.quantity
+            object.product.save()
+        super(OrderItemQuerySet, self).delete()
+
+
 class OrderItem(models.Model):
+    objects = OrderItemQuerySet.as_manager()
+
     order = models.ForeignKey(
         Order,
         related_name='orderitems',

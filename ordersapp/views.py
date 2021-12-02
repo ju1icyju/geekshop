@@ -13,6 +13,7 @@ from ordersapp.models import Order, OrderItem
 from ordersapp.forms import OrderItemForm
 from django.dispatch import receiver
 
+
 class OrderList(ListView):
     model = Order
 
@@ -39,7 +40,8 @@ class OrderCreate(CreateView):
                 for num, form in enumerate(formset.forms):
                     form.initial['product'] = basket_items[num].product
                     form.initial['quantity'] = basket_items[num].quantity
-                    form.initial['price'] = basket_items[num].price
+                    form.initial['price'] = basket_items[num].product.price
+                    # basket_items[num].delete()
                 basket_items.delete()
             else:
                 formset = OrderFormSet()
@@ -54,14 +56,14 @@ class OrderCreate(CreateView):
         with transaction.atomic():
             form.instance.user = self.request.user
             self.object = form.save()
-            if orderitems.is_valide():
+            if orderitems.is_valid():
                 orderitems.instance = self.object
                 orderitems.save()
 
-            if self.object.get_total_cost() == 0:
-                self.object.delete()
+        if self.object.get_total_cost() == 0:
+            self.object.delete()
 
-            return super(OrderCreate, self).form_valid(form)
+        return super(OrderCreate, self).form_valid(form)
 
 
 class OrderUpdate(UpdateView):
@@ -91,14 +93,14 @@ class OrderUpdate(UpdateView):
         with transaction.atomic():
             form.instance.user = self.request.user
             self.object = form.save()
-            if orderitems.is_valide():
+            if orderitems.is_valid():
                 orderitems.instance = self.object
                 orderitems.save()
 
-            if self.object.get_total_cost() == 0:
-                self.object.delete()
+        if self.object.get_total_cost() == 0:
+            self.object.delete()
 
-            return super(OrderUpdate, self).form_valid(form)
+        return super(OrderUpdate, self).form_valid(form)
 
 
 class OrderDelete(DeleteView):
@@ -106,7 +108,7 @@ class OrderDelete(DeleteView):
     success_url = reverse_lazy('ordersapp:orders_list')
 
 
-class OrderRead(DeleteView):
+class OrderRead(DetailView):
     model = Order
     extra_context = {'title': 'заказ/просмотр'}
 
@@ -117,6 +119,7 @@ def order_forming_complete(request, pk):
     order.save()
 
     return HttpResponseRedirect(reverse('ordersapp:orders_list'))
+
 
 @receiver(pre_save, sender=OrderItem)
 @receiver(pre_save, sender=Basket)
